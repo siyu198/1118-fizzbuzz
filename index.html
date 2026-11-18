@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FizzBuzz (1〜50)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --fizzbuzz-color: #c084fc;
+      --fizzbuzz-bg: rgba(192, 132, 252, 0.15);
+      --fizzbuzz-border: #a855f7;
+      --fizz-color: #38bdf8;
+      --fizz-bg: rgba(56, 189, 248, 0.15);
+      --fizz-border: #0ea5e9;
+      --buzz-color: #fbbf24;
+      --buzz-bg: rgba(251, 191, 36, 0.15);
+      --buzz-border: #f59e0b;
+      --number-color: #94a3b8;
+      --number-bg: rgba(148, 163, 184, 0.08);
+      --number-border: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      min-height: 100vh;
+      padding: 2.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #38bdf8 0%, #c084fc 50%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .description {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.875rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .legend-dot.fizzbuzz { background-color: var(--fizzbuzz-border); box-shadow: 0 0 8px var(--fizzbuzz-border); }
+    .legend-dot.fizz { background-color: var(--fizz-border); box-shadow: 0 0 8px var(--fizz-border); }
+    .legend-dot.buzz { background-color: var(--buzz-border); box-shadow: 0 0 8px var(--buzz-border); }
+    .legend-dot.number { background-color: var(--number-border); }
+
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      background: var(--card-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .filter-btn:hover {
+      background: #273549;
+      color: var(--text-main);
+      border-color: #475569;
+    }
+
+    .filter-btn.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .count-badge {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.15rem 0.45rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card.hidden {
+      display: none;
+    }
+
+    .card-num {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    /* Type Specific Styles */
+    .card.type-fizzbuzz {
+      border-color: var(--fizzbuzz-border);
+      background: linear-gradient(180deg, rgba(168, 85, 247, 0.12) 0%, var(--card-bg) 100%);
+    }
+    .card.type-fizzbuzz:hover {
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.25);
+    }
+    .card.type-fizzbuzz .card-badge {
+      color: var(--fizzbuzz-color);
+      background: var(--fizzbuzz-bg);
+      border: 1px solid var(--fizzbuzz-border);
+    }
+
+    .card.type-fizz {
+      border-color: var(--fizz-border);
+      background: linear-gradient(180deg, rgba(14, 165, 233, 0.12) 0%, var(--card-bg) 100%);
+    }
+    .card.type-fizz:hover {
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.25);
+    }
+    .card.type-fizz .card-badge {
+      color: var(--fizz-color);
+      background: var(--fizz-bg);
+      border: 1px solid var(--fizz-border);
+    }
+
+    .card.type-buzz {
+      border-color: var(--buzz-border);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, var(--card-bg) 100%);
+    }
+    .card.type-buzz:hover {
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.25);
+    }
+    .card.type-buzz .card-badge {
+      color: var(--buzz-color);
+      background: var(--buzz-bg);
+      border: 1px solid var(--buzz-border);
+    }
+
+    .card.type-number {
+      border-color: var(--number-border);
+    }
+    .card.type-number .card-badge {
+      color: var(--number-color);
+      background: var(--number-bg);
+      border: 1px solid var(--card-border);
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>FizzBuzz (1〜50)</h1>
+      <p class="description">1から50までの数値を FizzBuzz ルールに従って判定・可視化しています。</p>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot fizzbuzz"></span>FizzBuzz (15の倍数)</div>
+        <div class="legend-item"><span class="legend-dot fizz"></span>Fizz (3の倍数)</div>
+        <div class="legend-item"><span class="legend-dot buzz"></span>Buzz (5の倍数)</div>
+        <div class="legend-item"><span class="legend-dot number"></span>Number (その他)</div>
+      </div>
+    </header>
+
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">すべて <span class="count-badge" id="count-all">0</span></button>
+      <button class="filter-btn" data-filter="fizzbuzz">FizzBuzz <span class="count-badge" id="count-fizzbuzz">0</span></button>
+      <button class="filter-btn" data-filter="fizz">Fizz <span class="count-badge" id="count-fizz">0</span></button>
+      <button class="filter-btn" data-filter="buzz">Buzz <span class="count-badge" id="count-buzz">0</span></button>
+      <button class="filter-btn" data-filter="number">数字のみ <span class="count-badge" id="count-number">0</span></button>
+    </div>
+
+    <main class="grid" id="fizzbuzzGrid"></main>
+
+    <footer>
+      <p>Range: 1 〜 50 &bull; Total Items: 50</p>
+    </footer>
+  </div>
+
+  <script>
+    /**
+     * 1〜50のFizzBuzzデータを生成
+     */
+    function generateFizzBuzz(start = 1, end = 50) {
+      const items = [];
+      const counts = { all: 0, fizzbuzz: 0, fizz: 0, buzz: 0, number: 0 };
+
+      for (let i = start; i <= end; i++) {
+        let type = 'number';
+        let label = String(i);
+
+        if (i % 15 === 0) {
+          type = 'fizzbuzz';
+          label = 'FizzBuzz';
+        } else if (i % 3 === 0) {
+          type = 'fizz';
+          label = 'Fizz';
+        } else if (i % 5 === 0) {
+          type = 'buzz';
+          label = 'Buzz';
+        }
+
+        counts.all++;
+        counts[type]++;
+
+        items.push({ num: i, type, label });
+      }
+
+      return { items, counts };
+    }
+
+    /**
+     * DOMへの描画とイベント設定
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      const { items, counts } = generateFizzBuzz(1, 50);
+      const grid = document.getElementById('fizzbuzzGrid');
+      const filterBar = document.getElementById('filterBar');
+
+      // カウンターの更新
+      document.getElementById('count-all').textContent = counts.all;
+      document.getElementById('count-fizzbuzz').textContent = counts.fizzbuzz;
+      document.getElementById('count-fizz').textContent = counts.fizz;
+      document.getElementById('count-buzz').textContent = counts.buzz;
+      document.getElementById('count-number').textContent = counts.number;
+
+      // カードの生成
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `card type-${item.type}`;
+        card.dataset.type = item.type;
+
+        const numEl = document.createElement('div');
+        numEl.className = 'card-num';
+        numEl.textContent = item.num;
+
+        const badgeEl = document.createElement('div');
+        badgeEl.className = 'card-badge';
+        badgeEl.textContent = item.label;
+
+        card.appendChild(numEl);
+        card.appendChild(badgeEl);
+        grid.appendChild(card);
+      });
+
+      // フィルター切り替え処理
+      filterBar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+
+        // アクティブボタン切り替え
+        filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        const cards = grid.querySelectorAll('.card');
+
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.type === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
